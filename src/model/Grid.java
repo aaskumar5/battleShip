@@ -1,6 +1,7 @@
 package model;
 
 import model.types.GridState;
+import model.types.ShipStatus;
 
 public class Grid {
     Integer row;
@@ -25,6 +26,8 @@ public class Grid {
     }
 
     public void distroyGrid(Game game){
+        this.setGridState(GridState.DISTOYED);
+        ship.setShipStatus(ShipStatus.DISTROYED);
         if (ship != null){
             for(int i=ship.row;i<ship.row+ship.size;i++){
                 for(int j=ship.col;j<ship.col+ship.size;j++){
@@ -32,6 +35,10 @@ public class Grid {
                 }
             }
         }
+    }
+
+    public boolean isEmptyGrid(){
+        return this.ship == null;
     }
 
     public GridState getGridState() {
@@ -44,5 +51,13 @@ public class Grid {
 
     public Ship getShip() {
         return ship;
+    }
+
+    public Integer getRow() {
+        return row;
+    }
+
+    public Integer getCol() {
+        return col;
     }
 }

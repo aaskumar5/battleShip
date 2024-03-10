@@ -10,6 +10,7 @@ import java.security.PublicKey;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
+import java.util.concurrent.TimeUnit;
 
 public class Game {
     BattleField battleField;
@@ -26,6 +27,7 @@ public class Game {
         this.players = players;
         this.nextPlayerIndex = 0;
         attackStrategy = new RandomAttackStrategy();
+        this.gameState = GameState.IN_PROGRESS;
     }
     public static Builder getGameBuilder(){
         return new Builder();
@@ -55,23 +57,51 @@ public class Game {
         return nextPlayerIndex;
     }
 
-    public void attack(Scanner sc) {
-        System.out.println(players.get(nextPlayerIndex).name + " chance for next move ");
+    public void setGameState(GameState gameState) {
+        this.gameState = gameState;
+    }
+
+    public void setWinnerPlayer(Player winnerPlayer) {
+        this.winnerPlayer = winnerPlayer;
+    }
+
+    public void attack() throws InterruptedException {
+        System.out.print(players.get(nextPlayerIndex).name + " chance for next move : ");
 //        players.get(nextPlayerIndex).attack(sc);
         Grid attackGrid;
-        if(nextPlayerIndex ==0) {
+        if(nextPlayerIndex !=0) {
              attackGrid = attackStrategy.nextAttack(0, battleField.getDimension()/2, battleField.getDimension(),this);
         } else {
               attackGrid = attackStrategy.nextAttack(battleField.getDimension()/2, battleField.getDimension(), battleField.getDimension(),this);
         }
-        System.out.println("Missile fired at ("+);
-        if (attackGrid.getGridState().equals(GridState.DISTOYED) || attackGrid.getShip().getShipStatus().equals(ShipStatus.DISTROYED)) {
+        System.out.print("Missile fired at ("+ attackGrid.getRow()+ ","+ attackGrid.getCol()+") ");
+        if (attackGrid.getGridState().equals(GridState.DISTOYED) || attackGrid.isEmptyGrid()){
             // miss
+            System.out.println("Miss");
 
         } else {
             attackGrid.distroyGrid(this);
+//            TimeUnit.SECONDS.sleep(5);
+            System.out.println("Hit *********************** \n\n\n"+ players.get((nextPlayerIndex+1)%2).name +"'s ship with id "+attackGrid.getShip().shipName+ " destroyed");
         }
 
+        if(checkWinner(players.get((nextPlayerIndex+1)%2))) {
+            this.setGameState(GameState.END);
+            this.setWinnerPlayer(players.get(nextPlayerIndex));
+        }
+
+        nextPlayerIndex=(nextPlayerIndex+1)%2;
+    }
+
+    public boolean checkWinner(Player player){
+
+        for(Ship ship : player.getShips()){
+            if(ship.getShipStatus().equals(ShipStatus.HEALTHY)) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     public static class Builder {
@@ -94,7 +124,7 @@ public class Game {
                 setShipStateInBattleField(player,battleField);
             }
 
-            game.battleField.printBattleField();
+//            game.battleField.printBattleField();
 
             return game;
         }

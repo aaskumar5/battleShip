@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Client {
-    public static void main(String[] args) {
+    public static void main(String[] args) throws InterruptedException {
 
         List<Player> players = new ArrayList<>();
         List<Ship> playerAShip = new ArrayList<>();
@@ -25,8 +25,10 @@ public class Client {
 
         while (game.getGameState().equals(GameState.IN_PROGRESS)) {
 
-
+            gameController.attack(game);
         }
+
+        System.out.println(game.getWinnerPlayer().getName()+ " is winner !!");
 
 
     }

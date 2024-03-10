@@ -17,7 +17,7 @@ public class GameController {
                 .build();
     }
 
-    public void attack(Game game, Scanner sc){
-        game.attack(sc);
+    public void attack(Game game ) throws InterruptedException {
+        game.attack();
     }
 }
